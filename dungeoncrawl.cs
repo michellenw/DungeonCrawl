@@ -2,7 +2,8 @@ using System;
 
 namespace DungeonCrawl {
 
-	private class Program {
+	 class Program {
+
 
 		public static void Main(string[] args) {
 			Player player = new Player();
@@ -12,31 +13,35 @@ namespace DungeonCrawl {
 			
 			Console.WriteLine("What species are you?\n");
 			Console.WriteLine("Type: 1 for Archer, 2 for Mage, 3 for Warrior");
-			int chosenRole = Console.ReadLine();
-			while  ((chosenRole != 1) || (chosenRole != 2) || (chosenRole != 3)) {
-				Console.WriteLine("That is not a valid input. Pick 1, 2 or 3.\n");
+		
+			int chosenRole = Convert.ToInt32(Console.ReadLine());
+			while  ((chosenRole != 1) && (chosenRole != 2) && (chosenRole != 3)) {
+				Console.WriteLine("\n-------------------------------");
+				Console.WriteLine("The entry: " + chosenRole + " is not a valid input. Pick 1, 2 or 3.\n");
 			        Console.WriteLine("What species are you?\n");
                                 Console.WriteLine("Type: 1 for Archer, 2 for Mage, 3 for Warrior");
-				int chosenRole = Console.ReadLine();
+				chosenRole = Convert.ToInt32(Console.ReadLine());
 			}
-			player.role = chosenRole;
 
+			player.role = chosenRole;
+			
+			Console.WriteLine("Welcome to the dungeon, " + player.name + ". You are now playing as a " + player.getRole() + "!");
 
 		}
 
                 // *****************************************************************************************
 
 		public class Living {
-                        public int name { get; set; };
-		        public int health { get; set; };
+                        public string name { get; set; }
+		        public int health { get; set; }
 		}
 
                 // *****************************************************************************************		
 
 		// Player is now a child class, or derived class, from the Living class
 		public class Player : Living {
-			// get set signifies that we have a property where we can get a value and set a value 
-	 	        public int role { get; set; };
+			//   property where we can get a value and set a value 
+	 	        public int role { get; set; }
 			
 			// constructor			
 			public Player() {
@@ -55,7 +60,7 @@ namespace DungeonCrawl {
 				}
 			}
 
-			public playerInfo() {
+			public string playerInfo() {
 				return String.Format("{0} {1} - {2} health left!", getRole(), this.name, this.health);
 			}
 			
@@ -70,7 +75,7 @@ namespace DungeonCrawl {
 				this.health = health;
 			}
 			
-			public monsterInfo() {
+			public string monsterInfo() {
 				return String.Format("{0} with {1} health left!", this.name, this.health);
 			}
 		}
@@ -82,6 +87,10 @@ namespace DungeonCrawl {
 			public string location { get; set; }
 			public int depth { get; set; }
 
+			  public string welcomeMessage(string location) {
+                                return this.player.name + " has entered the " + location + "\n";
+                        }	
+
 			// constructor
 			public Location(Player player, int depth) {
 				this.player = player;
@@ -89,30 +98,26 @@ namespace DungeonCrawl {
 
 				// levels of depth
 				if (this.depth == 0) {
-					this.location == "Underground Realm";
+					this.location = "Underground Realm";
 					Console.WriteLine(welcomeMessage(this.location));
 
 					Monster caveSpider = new Monster("Cave Spider", 5);
 					Battle battle0 = new Battle(player, caveSpider);
 				}	
 				else if (this.depth == 1) {	
-					this.location == "Cavern";
-					Console.WriteLine(welomeMessage(this.location));
+					this.location = "Cavern";
+					Console.WriteLine(welcomeMessage(this.location));
 
 					Monster creeper = new Monster("Creeper", 10);
 					Battle battle1 = new Battle(player, creeper);
 				}
 				else if (this.depth == 2) {
-					this.location == "Underworld";
+					this.location = "Underworld";
 					Console.WriteLine(welcomeMessage(this.location));
 
 					Monster enderdragon = new Monster("Enderdragon", 15);
 					Battle battle2 = new Battle(player, enderdragon);
 				}
-			}
-
-			public string welcomeMessage(string location) {
-				return this.player.name + " has entered the " + location + "\n";
 			}
 		}
 
@@ -127,9 +132,9 @@ namespace DungeonCrawl {
 
 			public Battle(Player player, Monster monster) {
 				this.player = player;
-				this.enemy = enemy;
+				this.monster = monster;
 				// allow player to start battle
-				this.turn = true;
+				//this.turn = true;
 
 				Console.WriteLine("A {0} has appeared! Get ready to battle...", this.monster.name);
 				
