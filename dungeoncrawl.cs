@@ -6,6 +6,8 @@ namespace DungeonCrawl {
 
 
 		public static void Main(string[] args) {
+			Console.ForegroundColor = ConsoleColor.Blue;
+		
 			Player player = new Player();
 			
 			Console.WriteLine("Welcome. Type your name and hit enter:");
@@ -16,7 +18,6 @@ namespace DungeonCrawl {
 		
 			int chosenRole = Convert.ToInt32(Console.ReadLine());
 			while  ((chosenRole != 1) && (chosenRole != 2) && (chosenRole != 3)) {
-				Console.WriteLine("\n-------------------------------");
 				Console.WriteLine("The entry: " + chosenRole + " is not a valid input. Pick 1, 2 or 3.\n");
 			        Console.WriteLine("What species are you?\n");
                                 Console.WriteLine("Type: 1 for Archer, 2 for Mage, 3 for Warrior");
@@ -27,6 +28,30 @@ namespace DungeonCrawl {
 			
 			Console.WriteLine("Welcome to the dungeon, " + player.name + ". You are now playing as a " + player.getRole() + "!");
 
+			Location location = new Location(player, 0);
+			
+			if (player.health > 0) {
+				player.health = 1000;
+				Location location2 = new Location(player, 1);
+			}
+			else {
+				return;
+			}
+
+			 if (player.health > 0) {
+                                player.health = 1000;
+                                Location location3 = new Location(player, 2);
+                        }
+                        else {  
+                                return;
+                        }
+			
+			if(player.health > 0) {
+				   Console.WriteLine("You beat the dungeon!");
+			}
+			else {
+				return;
+			}
 		}
 
                 // *****************************************************************************************
@@ -45,7 +70,7 @@ namespace DungeonCrawl {
 			
 			// constructor			
 			public Player() {
-				this.health = 10;
+				this.health = 1000;
 			}
 
 			public string getRole() {
@@ -60,8 +85,9 @@ namespace DungeonCrawl {
 				}
 			}
 
-			public string playerInfo() {
-				return String.Format("{0} {1} - {2} health left!", getRole(), this.name, this.health);
+			public void playerInfo() {
+				Console.ForegroundColor = ConsoleColor.Green;
+				Console.WriteLine("{0} {1} - {2} health left!", getRole(), this.name, this.health);
 			}
 			
 		}
@@ -75,8 +101,9 @@ namespace DungeonCrawl {
 				this.health = health;
 			}
 			
-			public string monsterInfo() {
-				return String.Format("{0} with {1} health left!", this.name, this.health);
+			public void monsterInfo() {
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("{0} - {1} health left!", this.name, this.health);
 			}
 		}
 
@@ -101,21 +128,21 @@ namespace DungeonCrawl {
 					this.location = "Underground Realm";
 					Console.WriteLine(welcomeMessage(this.location));
 
-					Monster caveSpider = new Monster("Cave Spider", 5);
+					Monster caveSpider = new Monster("Cave Spider", 500);
 					Battle battle0 = new Battle(player, caveSpider);
 				}	
 				else if (this.depth == 1) {	
 					this.location = "Cavern";
 					Console.WriteLine(welcomeMessage(this.location));
 
-					Monster creeper = new Monster("Creeper", 10);
+					Monster creeper = new Monster("Creeper", 1000);
 					Battle battle1 = new Battle(player, creeper);
 				}
 				else if (this.depth == 2) {
 					this.location = "Underworld";
 					Console.WriteLine(welcomeMessage(this.location));
 
-					Monster enderdragon = new Monster("Enderdragon", 15);
+					Monster enderdragon = new Monster("Enderdragon", 1500);
 					Battle battle2 = new Battle(player, enderdragon);
 				}
 			}
@@ -127,27 +154,81 @@ namespace DungeonCrawl {
 			
 			public Player player { get; set; }
 			public Monster monster { get; set; }
-			public bool yourTurn { get; set; }
 			public int playerAttack { get; set; } 
 
 			public Battle(Player player, Monster monster) {
 				this.player = player;
 				this.monster = monster;
 				// allow player to start battle
-				//this.turn = true;
+				bool turn = true;
 
 				Console.WriteLine("A {0} has appeared! Get ready to battle...", this.monster.name);
 				
-				// Battle loop
+				while(this.player.health > 0 && this.monster.health > 0) {
+					Console.ForegroundColor = ConsoleColor.Blue;
+					// your turn
+					if (turn) {
+						Console.WriteLine("\n-------------------------------");
+						Console.WriteLine("It's your turn. What do you want to do?");
+						if (this.player.role == 1) {
+							Console.WriteLine("1 - Shoot an arrow. 2 - Attack with your sword.");
+						}
+						else if (this.player.role == 2) {
+							Console.WriteLine("1 - Fire blast. 2 - Attack with your sword.");
+						}
+						else {
+							Console.WriteLine("1 - Hit them with your hammer. 2 - Attack with your sword.");
+						}
+
+						int attackChoice = Convert.ToInt32(Console.ReadLine());
+						int attackDmg = attackDamage(attackChoice);
+						Console.WriteLine("\nThe " + this.monster.name + " took " + attackDmg + " HP in damage.");
+
+						if (this.monster.health <= attackDmg) {
+							this.monster.health = 0;
+							Console.WriteLine("SUCCESS!!! You killed the " + this.monster.name + "!!!");
+							break;
+						}
+						else {
+							this.monster.health -= attackDmg;
+							monster.monsterInfo();
+						}
+						turn = false;
+					}
+					else {
+						Console.WriteLine("\n-------------------------------");
+                                                Console.WriteLine("The " + this.monster.name + " lunges at you!");
+
+						Random rnd = new Random();
+						int monsterDmg = rnd.Next(0, 75);
+						if (this.player.health <= monsterDmg) {
+							this.player.health = 0;
+                                                        Console.WriteLine("Oh no...the " + this.monster.name + " killed you.");
+							break;
+                                                }
+                                                else {
+                                                        this.player.health -= monsterDmg;
+							Console.WriteLine("\nYou took " + monsterDmg + " HP in damage.");
+                                                        player.playerInfo();
+                                                }
+						turn = true;
+					}
+				}
 			}
-			public void endMessage (bool end) {
-				if(end) {
-					Console.WriteLine("You have defeated {0}!\n", this.monster.name);
+			
+			public int attackDamage(int attackChoice) {
+				Random rnd = new Random();
+
+				if(attackChoice == 1) {
+					// speciality attacks can do a lot or a little, risky
+					return (rnd.Next(0,101));
 				}
 				else {
-					Console.WriteLine("You have defeated {0}! You beat the dungeon!", this.monster.name);
+					// sword attacks are safer choices
+					return (rnd.Next(45,66));
 				}
 			}
+
 		} 		
 	}		
 }
